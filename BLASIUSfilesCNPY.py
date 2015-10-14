@@ -19,7 +19,7 @@ import numpy as np
 def openBlasiusfile(fname):
 #def openBlasiusfile(fname, endian):
     
-#  *endian code needs testing out
+#  *endian code needs testing out <Jonathon Pennells> 
     
 #    if ('little' in endian ):
 #        print 'endian is little'
@@ -86,10 +86,7 @@ def openBlasiusfile(fname):
                 #print inchar
                 
                 
-            elif ((isinstance(inchar, str)) and (inchar >= '0') and (inchar<='9')):
-
-                #rosacount += 1            
-                #print rosacount                
+            elif ((isinstance(inchar, str)) and (inchar >= '0') and (inchar<='9')):               
                 
                 if ndim != 0:
                     
@@ -110,10 +107,7 @@ def openBlasiusfile(fname):
                         dim[ndim - 1] = int(tmp)
                         
                         
-            elif (((inchar.isdigit()==False ) and (inchar != ',') and (inchar != '&') and (inchar != ' ') and (inchar != ':'))or (inchar=='') or (inchar=='_')):
-
-                #rosacount += 1            
-                #print rosacount               
+            elif (((inchar.isdigit()==False ) and (inchar != ',') and (inchar != '&') and (inchar != ' ') and (inchar != ':'))or (inchar=='') or (inchar=='_')):              
                 
                 numitems=numitems+1
                 nchar=0
@@ -149,24 +143,15 @@ def openBlasiusfile(fname):
 
         inchar=fid.read(1)
         
-        #print inchar
         
         while (inchar==' '):
             inchar =fid.read(1)
-            #print inchar
-#    
+    
         fpos=(fid.tell() -1)
-        
-        #print fpos
-#
+
         for i in range (0,numitems):
             file[i,1]=file[i,1]*4 + fpos
-            
-        #print numitems
-
-#    return numitems
-
-        #print file         
+                    
    
         return file
  
@@ -187,7 +172,6 @@ def findBlasiusdata(file, dname):
 
     i=0
     ihdr=0
-    #print numitems
 
     while (i<=numitems-1):
         if (dname == file[i,0]):
@@ -200,6 +184,8 @@ def findBlasiusdata(file, dname):
 ###################################
 # END OF FINDBLASIUSDATA
 ###################################
+  
+  
 
 def readBlasiusdata(file, dname):
 
@@ -250,6 +236,8 @@ def readBlasiusdata(file, dname):
 # END OF READBLASIUSDATA                        
 ###################################
 
+
+
 def readgrids2d(file):
 
 #  create 2d arrays for the coordinate grids.
@@ -287,9 +275,7 @@ def readgrids2d(file):
     zn2d=zn2d.T
     x2d=x2d.T
     z2d=z2d.T
-
-
-# 
+ 
 
 #    H=z[kkp-2,0]
 
@@ -304,28 +290,40 @@ def readgrids2d(file):
 ########################################
 
 
+
 def levels(output_file):
+    
+#Convert levels to heights 
+    
+# Swap the x and y axes round
 
-        output_file_flip = output_file.T
-
+        output_file_flip = output_file.T   
+        
+# Domain height        
         H = 1500
 
+# Height of lowest grid point
         Z1 = 0.25  
 
+#Grid stretch factor
         R1 = 1.05 
-    
+
+#First three levels:    
         a0 = -Z1 
     
         a1 = 0.00
     
         a2 = Z1
 
+#Initialise constant_spacing, which gets calculated in the loop below
         constant_spacing = 0.00
 
+#Number of levels (there are twice as many as there are two overlaying grids with levels Z and ZN)
         Nlevels = len(output_file_flip)*2
         
         print Nlevels 
 
+#Create an empty array to hold the levels' heights
         levels = np.zeros(Nlevels)
         levels[0]=a0
         levels[1]=a1
@@ -375,33 +373,25 @@ def levels(output_file):
 
 #-------------------------------------------------------------------------------#
 
+
 def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
+# Plot the data   
     
-    
-    flip_u = u_data.T   #flip the x and y axes
+#flip the x and y axes    
+    flip_u = u_data.T   
     
     flip_w = w_data.T
 
     flip_p = p_data.T
 
-    #nflip = len(flip_u)
-
-    #print nflip
-    
-    shorten_u =flip_u[1:80]   #remove first row as this is just zeros
+#Remove the first row as this is just zeros   
+    shorten_u =flip_u[1:80]   
     
     shorten_w =flip_w[1:80]
     
     shorten_p=flip_p[1:80]
 
-    #nlevels = len(flip_u) #length of dataset
-    
-    #print nlevels
-    
-    #levels = list(range(0, nlevels)) #create list of numbers from 0 to the length of the data set (i.e. 0 to 49)
-    
-    #print levels
-    
+#Calculate means    
     mean_u = u_data.mean(axis=0)  
 
     lenMean = len(mean_u)
@@ -412,23 +402,12 @@ def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
     
     mean_p = p_data.mean(axis=0)
 
-    #mean_u = shorten_u.mean(axis=1)   #calculate the mean wind speed for each level
-    
-    #mean_w = shorten_w.mean(axis=1)
-   
-    #mean_p = shorten_p.mean(axis=1)
-
-    #print mean_w
-    
-    distance = 70    #choose the timeslice of speeds that you would like to compare against the mean
+#choose the variable timeslice that you would like to compare against the mean   
+    distance = 70    
     
     slice = distance-1  
     
-    #slice_u = shorten_u[:,slice]     #select the column corresponding to that timeslice
-    
-    #slice_w = shorten_w[:,slice]  
-    
-    #slice_p = shorten_p[:,slice]
+    #select the column corresponding to that timeslice
 
     slice_u = flip_u[:,slice]
 
@@ -436,10 +415,9 @@ def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
 
     slice_p = flip_p[:,slice]
 
-
-    
-    
-    #Create figure
+   
+#....CREATE FIGURE....
+   
     figure = plt.figure(1, facecolor = "white", figsize = (10,10))
 
     # Set up some basic parameters for the plots
@@ -449,11 +427,10 @@ def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
     rcParams['legend.numpoints'] = 1
     axis_size = rcParams['font.size']+2
     
-    #Add first axis
+#Add first axis (subplot2grid splits figure into two columns and 24 rows)
     
-    #ax1 = figure.add_subplot(3,2,1)
-
     ax1 = plt.subplot2grid((24,2), (0,0), rowspan = 6)
+#   subplot ax1 occupies the first six rows in the first column
 
     cax1 = ax1.imshow(shorten_u, aspect ='auto', cmap = "BuGn", origin = "lower")
 
@@ -461,35 +438,63 @@ def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
 
     ax1.set_xlabel('Distance / m', fontsize = axis_size)
 
-    ax1.annotate('a', xy=(0.05,0.93),  xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left',  verticalalignment='top',  fontsize=axis_size)
+    ax1.annotate('a', xy=(0.05,0.93),  xycoords='axes fraction',color = 'white',  backgroundcolor='none', horizontalalignment='left',  verticalalignment='top',  fontsize=axis_size)
 
-    #cbar = figure.colorbar(cax1, ax=ax1, shrink=0.4, use_gridspec=True)
-
-    #cbar = figure.colorbar(cax1, ax=ax1, orientation = "horizontal")
-    
+#   create another subplot directly below ax1, occupying two rows, for the colorbar  
     ax7 = plt.subplot2grid((24,2), (6,0), rowspan = 2)
 
     cbar = plt.colorbar(cax1, cax = ax7, orientation = "horizontal")
 
     cbar.set_label('Streamwise velocity / m s$^{-1}$', multialignment='center', fontsize = axis_size)
     
+   
+#Add second axis....................
     
-    #Add third axis
+    ax2 = plt.subplot2grid((24,2), (0,1), rowspan = 8)
     
-    #ax3 = figure.add_subplot(3,2,3)
+
+    ax2.set_ylabel('Log height / m', fontsize = axis_size)
+
+    ax2.set_xlabel('Streamwise velocity / m s$^{-1}$', fontsize = axis_size)
+    
+
+    ax2.plot(mean_u, Z_levels, color = "blue", ls = "--", label = "Mean")
+
+    ax2.plot(slice_u, Z_levels, color = "green", label = "At x=%(distance)s" % {"distance" : distance})
+    
+
+    ax2.set_yscale('log')
+    
+
+    ax2.set_xlim(np.min(mean_u), np.max(mean_u)*1.15)
+
+    ax2.set_ylim(0, np.max(Z_levels))
+    
+
+    plt.legend(loc = 'upper center')
+
+    ax2.annotate('b', xy=(0.05,0.93),  xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left',  verticalalignment='top',  fontsize=axis_size)
+    
+
+    
+    
+#Add third axis.....................
 
     ax3 = plt.subplot2grid((24,2), (8,0), rowspan = 6)
+    
 
     cax3 = ax3.imshow(shorten_w, aspect ='auto', cmap = "PRGn", origin = "lower")
+    
 
     ax3.set_ylabel('Level', fontsize = axis_size)
 
     ax3.set_xlabel('Distance / m', fontsize = axis_size)
+    
 
     ax3.annotate('c', xy=(0.05,0.93),  xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left',  verticalalignment='top',  fontsize=axis_size)
 
-    #cbar = figure.colorbar(cax3, ax=ax3, shrink=0.4, use_gridspec=True)
-
+    
+    #Colorbar axis    
     ax8 = plt.subplot2grid((24,2), (14,0), rowspan=2)
 
     cbar = plt.colorbar(cax3, cax = ax8, orientation = "horizontal")
@@ -497,134 +502,96 @@ def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
     cbar.set_label('Vertical velocity / m s$^{-1}$', multialignment='center', fontsize = axis_size)
     
     
-    #Add second axis
-    
-    #ax2 = figure.add_subplot(3,2,2)
-    
-    ax2 = plt.subplot2grid((24,2), (0,1), rowspan = 8)
-
-    ax2.set_ylabel('Log height / m', fontsize = axis_size)
-
-    ax2.set_xlabel('Streamwise velocity / m s$^{-1}$', fontsize = axis_size)
-
-    ax2.plot(mean_u, Z_levels, color = "blue", ls = "--", label = "Mean")
-
-    ax2.plot(slice_u, Z_levels, color = "green", label = "At x=%(distance)s" % {"distance" : distance})
-
-    ax2.set_yscale('log')
-
-    ax2.set_xlim(np.min(mean_u), np.max(mean_u)*1.15)
-
-    ax2.set_ylim(0, np.max(Z_levels))
-
-    plt.legend(loc = 'upper center')
-
-    ax2.annotate('b', xy=(0.05,0.93),  xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left',  verticalalignment='top',  fontsize=axis_size)
-    
-
-    #Add fourth axis
  
-    #ax4 = figure.add_subplot(3,2,4)
+#Add fourth axis....................
 
     ax4 = plt.subplot2grid((24,2), (8,1), rowspan = 8)
+    
 
     ax4.set_ylabel('Log height / m', fontsize = axis_size)
 
     ax4. set_xlabel('Vertical velocity / m s$^{-1}$', fontsize = axis_size)
+    
 
     ax4.plot(mean_w, Z_levels, color = "blue", ls = "--", label = "Mean")
 
     ax4.plot(slice_w, Z_levels, color = "green", label = "At x=%(distance)s" % {"distance" : distance})
+    
 
     ax4.set_yscale('log')
+    
 
     plt.legend(loc = 'upper center')
+    
 
     ax4.annotate('d', xy=(0.05,0.93),  xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left',  verticalalignment='top',  fontsize=axis_size)
 
+    #Set tick spacing        
     majorLocator = MultipleLocator(0.01)
 
     ax4.xaxis.set_major_locator(majorLocator)
 
 
-    #Add fifth axis
-
-    #ax5 = figure.add_subplot(3,2,5)
+#Add fifth axis.....................
 
     ax5 = plt.subplot2grid((24,2), (16,0), rowspan = 6)
+    
 
     cax5 = ax5.imshow(shorten_p, aspect = 'auto',  cmap = "PRGn", origin = "lower")
+    
 
     ax5.set_ylabel('Level', fontsize = axis_size)
 
     ax5.set_xlabel('Distance / m', fontsize = axis_size)
+    
 
     ax5.annotate('e', xy=(0.05,0.93), xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left', verticalalignment='top', fontsize=axis_size)
 
+    
+    #Colorbar axis    
     ax9 = plt.subplot2grid((24,2), (22,0), rowspan = 2)
 
     cbar = plt.colorbar(cax5, cax=ax9, orientation="horizontal")
 
     cbar.set_label('Pressure / Pa', fontsize=axis_size)
 
-    #cbaxes5 = figure.add_axes([0.8,0.1,0.03,0.8])
-
-    #cb = plt.colorbar(ax5, cax=cbaxes5)
-
-    #cbar = figure.colorbar(cax5, ax=ax5, shrink=0.4, use_gridspec=True, orientation = "horizontal")
-
-    #cbar.set_label('Pressure / Pa', fontsize=axis_size)
-
-    #ax5ins = inset_axes(ax5, width = "50%", height = "5%", loc = 4)
-
-    #scalarMap._A = []
-
-    #cbar = plt.colorbar(scalarMap._A, cax=ax5, orientation = "horizontal")
-
-    #cbar.set_label("Pressure / Pa", fontsize=axis_size)
-
-    #cbar.ax.xaxis.set_ticks_position("top")
-
-    #cbar.ax.xaxis.set_label_position("top")
-
-    #cbar.ax.tick_params(labelsize = axis_size, labelcolor = "white", color = "white")
-
-    #cbar.outline.set_color("white")
 
 
-
-    #Add sixth axis
-
-    #ax6 = figure.add_subplot(3,2,6)
+#Add sixth axis..................................
 
     ax6 = plt.subplot2grid((24,2), (16,1), rowspan = 8)
+    
 
     ax6.set_ylabel('Log height / m', fontsize = axis_size)
 
     ax6.set_xlabel('Pressure /Pa', fontsize = axis_size)
+    
 
     ax6.plot(mean_p, Z_levels, color = "blue", ls = "--", label = "Mean")
 
     ax6.plot(slice_p, Z_levels, color = "green", label="At x=%(distance)s"%{"distance" : distance})
+    
 
     ax6.set_yscale('log')
+    
 
     plt.legend(loc="upper center")
+    
 
     ax6.annotate('f', xy=(0.05,0.93), xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left', verticalalignment='top', fontsize=axis_size)
 
 
     
-    #Make the plot look nicer
+#Make the figure look nicer..........
     
     plt.tight_layout(pad = 6, w_pad = 2, h_pad = 1)
 
-    #Add a figure title
+#Add a figure title
 
     figure.suptitle("2-d with canopy \n wake depth = 5", fontsize = 14)
 
     
-    
+#-------------------------------------------------------------------------------------------------------------------    
     
     
 
