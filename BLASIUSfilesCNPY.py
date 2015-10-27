@@ -321,7 +321,7 @@ def levels(output_file):
 #Number of levels (there are twice as many as there are two overlaying grids with levels Z and ZN)
         Nlevels = len(output_file_flip)*2
         
-        print Nlevels 
+        #print Nlevels 
 
 #Create an empty array to hold the levels' heights
         levels = np.zeros(Nlevels)
@@ -349,7 +349,7 @@ def levels(output_file):
                 # otherwise use constant spacing
                         a_n = a_minus_1 + constant_spacing 
 
-                        print "CONSTANT SPACING"
+                        #print "CONSTANT SPACING"
         
                         if a_n > H:
                                 a_n = H
@@ -367,7 +367,7 @@ def levels(output_file):
 
                 ZN_levels[i] = levels[2*i]
 
-                print "Level " + str(i+1) + ", Height = " + str(Z_levels[i])
+                #print "Level " + str(i+1) + ", Height = " + str(Z_levels[i])
 
         return Nlevels, Z_levels
 
@@ -408,7 +408,7 @@ def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
 
     lenMeanx = len(meanx_u)
 
-    print lenMeanx
+    #print lenMeanx
 
     meanx_w = w_data.mean(axis=1)
 
@@ -417,9 +417,9 @@ def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
 
 
 #choose the variable distance slice that you would like to compare against the mean (looking at vertical variation)  
-    distance = 70    
+    distance_slice = 70    
     
-    slice = distance-1  
+    slice = distance_slice-1  
     
     #select the column corresponding to that slice
 
@@ -458,11 +458,24 @@ def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
 
 #set up distance x values
 
-    Nx = len(u_data)
-    print Nx 
 
-    x_distance = list(range(0,Nx))
-    print x_distance 
+    Ngrid = len(u_data)
+    
+    DomainLength = 400
+
+    gridpoint_length = float(DomainLength) / float(Ngrid-1)
+    
+    x_distance = np.empty(Ngrid)
+
+    x_distance[0] = 0
+
+    for i in range (1, Ngrid):
+            distance = 0
+            distance_minus1 = x_distance[i-1]
+            distance = distance_minus1 + gridpoint_length
+            x_distance[i] = distance 
+
+    #print x_distance 
 
 
 
@@ -487,7 +500,7 @@ def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
 
     ax1.set_ylabel('Level', fontsize = axis_size)
 
-    ax1.set_xlabel('Distance / m', fontsize = axis_size)
+    ax1.set_xlabel('Gridpoint', fontsize = axis_size)
 
     ax1.annotate('a', xy=(0.05,0.93),  xycoords='axes fraction',color = 'white',  backgroundcolor='none', horizontalalignment='left',  verticalalignment='top',  fontsize=axis_size)
 
@@ -511,7 +524,7 @@ def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
 
     ax3.plot(mean_u, Z_levels, color = "blue", ls = "--", label = "Mean")
 
-    ax3.plot(slice_u, Z_levels, color = "green", label = "At x=%(distance)s" % {"distance" : distance})
+    ax3.plot(slice_u, Z_levels, color = "green", label = "At x=%(distance)s" % {"distance" : distance_slice})
     
 
     ax3.set_yscale('log')
@@ -562,7 +575,7 @@ def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
 
     ax21.set_ylabel('Level', fontsize = axis_size)
 
-    ax21.set_xlabel('Distance / m', fontsize = axis_size)
+    ax21.set_xlabel('Gridpoint', fontsize = axis_size)
     
 
     ax21.annotate('d', xy=(0.05,0.93),  xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left',  verticalalignment='top',  fontsize=axis_size)
@@ -589,7 +602,7 @@ def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
 
     ax23.plot(mean_w, Z_levels, color = "blue", ls = "--", label = "Mean")
 
-    ax23.plot(slice_w, Z_levels, color = "green", label = "At x=%(distance)s" % {"distance" : distance})
+    ax23.plot(slice_w, Z_levels, color = "green", label = "At x=%(distance)s" % {"distance" : distance_slice})
     
 
     ax23.set_yscale('log')
@@ -639,7 +652,7 @@ def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
 
     ax31.set_ylabel('Level', fontsize = axis_size)
 
-    ax31.set_xlabel('Distance / m', fontsize = axis_size)
+    ax31.set_xlabel('Gridpoint', fontsize = axis_size)
     
 
     ax31.annotate('g', xy=(0.05,0.93), xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left', verticalalignment='top', fontsize=axis_size)
@@ -666,7 +679,7 @@ def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
 
     ax33.plot(mean_p, Z_levels, color = "blue", ls = "--", label = "Mean")
 
-    ax33.plot(slice_p, Z_levels, color = "green", label="At x=%(distance)s"%{"distance" : distance})
+    ax33.plot(slice_p, Z_levels, color = "green", label="At x=%(distance)s"%{"distance" : distance_slice})
     
     ax33.set_xlim(np.min(slice_p)*1.1, np.max(mean_p)+0.001)
 
@@ -718,7 +731,9 @@ def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
 
 if __name__ == "__main__":
 
-    fname='/home/s1359318/rls_datastore/PhD/BLASIUS/blasius_v4.01/2-d-canopy/Output/RUN101_1025.DAT'
+    #fname='/home/s1359318/rls_datastore/PhD/BLASIUS/blasius_v4.01/2-d-canopy/Output/RUN101_1025.DAT'
+
+    fname = '/home/s1359318/rls_datastore/PhD/BLASIUS/blasius_v4.01/Output_files/Test/canopy/CD0.5/2d/RUN101_1025.DAT'
     
     u = 'u'
     
