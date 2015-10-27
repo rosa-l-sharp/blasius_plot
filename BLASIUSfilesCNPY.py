@@ -391,7 +391,7 @@ def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
     
     shorten_p=flip_p[1:80]
 
-#Calculate means    
+#Calculate means for vertical variation   
     mean_u = u_data.mean(axis=0)  
 
     lenMean = len(mean_u)
@@ -402,12 +402,26 @@ def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
     
     mean_p = p_data.mean(axis=0)
 
-#choose the variable timeslice that you would like to compare against the mean   
+#Calculate means for horizontal variation
+
+    meanx_u = u_data.mean(axis=1)
+
+    lenMeanx = len(meanx_u)
+
+    print lenMeanx
+
+    meanx_w = w_data.mean(axis=1)
+
+    meanx_p = p_data.mean(axis=1)
+
+
+
+#choose the variable distance slice that you would like to compare against the mean (looking at vertical variation)  
     distance = 70    
     
     slice = distance-1  
     
-    #select the column corresponding to that timeslice
+    #select the column corresponding to that slice
 
     slice_u = flip_u[:,slice]
 
@@ -415,10 +429,47 @@ def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
 
     slice_p = flip_p[:,slice]
 
+
+#choose the height slice that you would like to compare against the mean (looking at the horizontal variation)
+
+    canopy_height = 10
+
+    height1 = (canopy_height)
+
+    height2 = (canopy_height*0.75)
+
+    height3 = (canopy_height*1.25)
+
+
+    #select the row corresponding to that slice
+
+    slice_u1 = u_data[:,height1]
+    slice_u2 = u_data[:,height2]
+    slice_u3 = u_data[:,height3]
+
+    slice_w1 = w_data[:,height1]
+    slice_w2 = w_data[:,height2]
+    slice_w3 = w_data[:,height3]
+
+    slice_p1 = p_data[:,height1]
+    slice_p2 = p_data[:,height2]
+    slice_p3 = p_data[:,height3]
+
+
+#set up distance x values
+
+    Nx = len(u_data)
+    print Nx 
+
+    x_distance = list(range(0,Nx))
+    print x_distance 
+
+
+
    
 #....CREATE FIGURE....
    
-    figure = plt.figure(1, facecolor = "white", figsize = (10,10))
+    figure = plt.figure(1, facecolor = "white", figsize = (18,10))
 
     # Set up some basic parameters for the plots
     rcParams['font.family'] = 'sans-serif'
@@ -427,9 +478,9 @@ def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
     rcParams['legend.numpoints'] = 1
     axis_size = rcParams['font.size']+2
     
-#Add first axis (subplot2grid splits figure into two columns and 24 rows)
+#Add first subplot (subplot2grid splits figure into three columns and 24 rows)
     
-    ax1 = plt.subplot2grid((24,2), (0,0), rowspan = 6)
+    ax1 = plt.subplot2grid((24,3), (0,0), rowspan = 6)
 #   subplot ax1 occupies the first six rows in the first column
 
     cax1 = ax1.imshow(shorten_u, aspect ='auto', cmap = "BuGn", origin = "lower")
@@ -441,144 +492,214 @@ def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
     ax1.annotate('a', xy=(0.05,0.93),  xycoords='axes fraction',color = 'white',  backgroundcolor='none', horizontalalignment='left',  verticalalignment='top',  fontsize=axis_size)
 
 #   create another subplot directly below ax1, occupying two rows, for the colorbar  
-    ax7 = plt.subplot2grid((24,2), (6,0), rowspan = 2)
+    ax2 = plt.subplot2grid((24,3), (6,0), rowspan = 2)
 
-    cbar = plt.colorbar(cax1, cax = ax7, orientation = "horizontal")
+    cbar = plt.colorbar(cax1, cax = ax2, orientation = "horizontal")
 
     cbar.set_label('Streamwise velocity / m s$^{-1}$', multialignment='center', fontsize = axis_size)
     
    
-#Add second axis....................
+#Add second subplot, plotting vertical variation....................
     
-    ax2 = plt.subplot2grid((24,2), (0,1), rowspan = 8)
-    
-
-    ax2.set_ylabel('Log height / m', fontsize = axis_size)
-
-    ax2.set_xlabel('Streamwise velocity / m s$^{-1}$', fontsize = axis_size)
+    ax3 = plt.subplot2grid((24,3), (0,1), rowspan = 8)
     
 
-    ax2.plot(mean_u, Z_levels, color = "blue", ls = "--", label = "Mean")
+    ax3.set_ylabel('Log height / m', fontsize = axis_size)
 
-    ax2.plot(slice_u, Z_levels, color = "green", label = "At x=%(distance)s" % {"distance" : distance})
+    ax3.set_xlabel('Streamwise velocity / m s$^{-1}$', fontsize = axis_size)
     
 
-    ax2.set_yscale('log')
+    ax3.plot(mean_u, Z_levels, color = "blue", ls = "--", label = "Mean")
+
+    ax3.plot(slice_u, Z_levels, color = "green", label = "At x=%(distance)s" % {"distance" : distance})
     
 
-    ax2.set_xlim(np.min(mean_u), np.max(mean_u)*1.15)
+    ax3.set_yscale('log')
+    
 
-    ax2.set_ylim(0, np.max(Z_levels))
+    ax3.set_xlim(np.min(slice_u), np.max(slice_u)*1.15)
+
+    ax3.set_ylim(0, np.max(Z_levels))
     
 
     plt.legend(loc = 'upper center')
 
-    ax2.annotate('b', xy=(0.05,0.93),  xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left',  verticalalignment='top',  fontsize=axis_size)
+    ax3.annotate('b', xy=(0.05,0.93),  xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left',  verticalalignment='top',  fontsize=axis_size)
     
+
+#Add third subplot, plotting horizontal variation.....................
+
+    ax4 = plt.subplot2grid((24,3), (0,2), rowspan = 8)
+
+
+    ax4.set_ylabel('Streamwise velocity / m s$^{-1}$', fontsize = axis_size)
+
+    ax4.set_xlabel('Distance / m', fontsize = axis_size)
+
+
+    ax4.plot(x_distance, meanx_u, color = "blue", ls = "--", label = "Mean")
+    ax4.plot(x_distance, slice_u1, color = "magenta", ls = "--", label = "At canopy height: %(height1)s m" % {"height1" : height1})
+    ax4.plot(x_distance, slice_u2, color = "cyan", ls = "--", label = "At 0.75 * canopy height: %(height2)s m" % {"height2" : height2})
+    ax4.plot(x_distance, slice_u3, color = "green", ls = "--", label = "At 1.25 * canopy height: %(height3)s m" % {"height3" : height3})
+
+    ax4.set_ylim(np.min(slice_u2)-1 , np.max(meanx_u)*1.85)
+
+    ax4.set_xlim(np.min(x_distance),np.max(x_distance))
+
+    plt.legend(loc = "upper right")
+
+    ax4.annotate('c', xy=(0.05,0.93),  xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left', verticalalignment='top', fontsize=axis_size)
 
     
     
-#Add third axis.....................
+#Add fourth subplot.....................
 
-    ax3 = plt.subplot2grid((24,2), (8,0), rowspan = 6)
+    ax21 = plt.subplot2grid((24,3), (8,0), rowspan = 6)
     
 
-    cax3 = ax3.imshow(shorten_w, aspect ='auto', cmap = "PRGn", origin = "lower")
+    cax21 = ax21.imshow(shorten_w, aspect ='auto', cmap = "PRGn", origin = "lower")
     
 
-    ax3.set_ylabel('Level', fontsize = axis_size)
+    ax21.set_ylabel('Level', fontsize = axis_size)
 
-    ax3.set_xlabel('Distance / m', fontsize = axis_size)
+    ax21.set_xlabel('Distance / m', fontsize = axis_size)
     
 
-    ax3.annotate('c', xy=(0.05,0.93),  xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left',  verticalalignment='top',  fontsize=axis_size)
+    ax21.annotate('d', xy=(0.05,0.93),  xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left',  verticalalignment='top',  fontsize=axis_size)
 
     
     #Colorbar axis    
-    ax8 = plt.subplot2grid((24,2), (14,0), rowspan=2)
+    ax22 = plt.subplot2grid((24,3), (14,0), rowspan=2)
 
-    cbar = plt.colorbar(cax3, cax = ax8, orientation = "horizontal")
+    cbar = plt.colorbar(cax21, cax = ax22, orientation = "horizontal")
 
     cbar.set_label('Vertical velocity / m s$^{-1}$', multialignment='center', fontsize = axis_size)
     
     
  
-#Add fourth axis....................
+#Add fifth subplot....................
 
-    ax4 = plt.subplot2grid((24,2), (8,1), rowspan = 8)
+    ax23 = plt.subplot2grid((24,3), (8,1), rowspan = 8)
     
 
-    ax4.set_ylabel('Log height / m', fontsize = axis_size)
+    ax23.set_ylabel('Log height / m', fontsize = axis_size)
 
-    ax4. set_xlabel('Vertical velocity / m s$^{-1}$', fontsize = axis_size)
+    ax23. set_xlabel('Vertical velocity / m s$^{-1}$', fontsize = axis_size)
     
 
-    ax4.plot(mean_w, Z_levels, color = "blue", ls = "--", label = "Mean")
+    ax23.plot(mean_w, Z_levels, color = "blue", ls = "--", label = "Mean")
 
-    ax4.plot(slice_w, Z_levels, color = "green", label = "At x=%(distance)s" % {"distance" : distance})
+    ax23.plot(slice_w, Z_levels, color = "green", label = "At x=%(distance)s" % {"distance" : distance})
     
 
-    ax4.set_yscale('log')
+    ax23.set_yscale('log')
     
 
     plt.legend(loc = 'upper center')
     
 
-    ax4.annotate('d', xy=(0.05,0.93),  xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left',  verticalalignment='top',  fontsize=axis_size)
+    ax23.annotate('e', xy=(0.05,0.93),  xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left',  verticalalignment='top',  fontsize=axis_size)
 
     #Set tick spacing        
-    majorLocator = MultipleLocator(0.01)
+    #majorLocator = MultipleLocator(0.01)
 
-    ax4.xaxis.set_major_locator(majorLocator)
+    #ax23.xaxis.set_major_locator(majorLocator)
 
 
-#Add fifth axis.....................
+#Add sixth subplot........................
 
-    ax5 = plt.subplot2grid((24,2), (16,0), rowspan = 6)
+    ax24 = plt.subplot2grid((24,3), (8,2), rowspan = 8)
+
+
+    ax24.set_ylabel('Vertical velocity / m s$^{-1}$', fontsize = axis_size)
+    ax24.set_xlabel('Distance / m', fontsize = axis_size)
+
+    ax24.plot(x_distance, meanx_w, color = "blue", ls = "--", label = "Mean")
+    ax24.plot(x_distance, slice_w1, color = "magenta", ls = "--", label = "At canopy height: %(height1)s m" % {"height1" : height1})
+    ax24.plot(x_distance, slice_w2, color = "cyan", ls = "--", label = "At 0.75 * canopy height: %(height2)s m" % {"height2" : height2})
+    ax24.plot(x_distance, slice_w3, color = "green", ls = "--", label = "At 1.25 * canopy height: %(height3)s m" % {"height3" : height3})
+
+    ax24.set_ylim(np.min(slice_w1)*1.2, np.max(slice_w1)*2.25)
+
+    ax24.set_xlim(np.min(x_distance),np.max(x_distance))
+
+    plt.legend(loc = "upper right")
+
+    ax24.annotate('f', xy=(0.05,0.93),  xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left',  verticalalignment='top',  fontsize=axis_size)
+
+
+
+#Add seventh subplot.....................
+
+    ax31 = plt.subplot2grid((24,3), (16,0), rowspan = 6)
     
 
-    cax5 = ax5.imshow(shorten_p, aspect = 'auto',  cmap = "PRGn", origin = "lower")
+    cax31 = ax31.imshow(shorten_p, aspect = 'auto',  cmap = "PRGn", origin = "lower")
     
 
-    ax5.set_ylabel('Level', fontsize = axis_size)
+    ax31.set_ylabel('Level', fontsize = axis_size)
 
-    ax5.set_xlabel('Distance / m', fontsize = axis_size)
+    ax31.set_xlabel('Distance / m', fontsize = axis_size)
     
 
-    ax5.annotate('e', xy=(0.05,0.93), xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left', verticalalignment='top', fontsize=axis_size)
+    ax31.annotate('g', xy=(0.05,0.93), xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left', verticalalignment='top', fontsize=axis_size)
 
     
     #Colorbar axis    
-    ax9 = plt.subplot2grid((24,2), (22,0), rowspan = 2)
+    ax32 = plt.subplot2grid((24,3), (22,0), rowspan = 2)
 
-    cbar = plt.colorbar(cax5, cax=ax9, orientation="horizontal")
+    cbar = plt.colorbar(cax31, cax=ax32, orientation="horizontal")
 
     cbar.set_label('Pressure / Pa', fontsize=axis_size)
 
 
 
-#Add sixth axis..................................
+#Add eight subplot..................................
 
-    ax6 = plt.subplot2grid((24,2), (16,1), rowspan = 8)
+    ax33 = plt.subplot2grid((24,3), (16,1), rowspan = 8)
     
 
-    ax6.set_ylabel('Log height / m', fontsize = axis_size)
+    ax33.set_ylabel('Log height / m', fontsize = axis_size)
 
-    ax6.set_xlabel('Pressure /Pa', fontsize = axis_size)
+    ax33.set_xlabel('Pressure / Pa', fontsize = axis_size)
     
 
-    ax6.plot(mean_p, Z_levels, color = "blue", ls = "--", label = "Mean")
+    ax33.plot(mean_p, Z_levels, color = "blue", ls = "--", label = "Mean")
 
-    ax6.plot(slice_p, Z_levels, color = "green", label="At x=%(distance)s"%{"distance" : distance})
+    ax33.plot(slice_p, Z_levels, color = "green", label="At x=%(distance)s"%{"distance" : distance})
     
+    ax33.set_xlim(np.min(slice_p)*1.1, np.max(mean_p)+0.001)
 
-    ax6.set_yscale('log')
+    ax33.set_yscale('log')
     
 
     plt.legend(loc="upper center")
     
 
-    ax6.annotate('f', xy=(0.05,0.93), xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left', verticalalignment='top', fontsize=axis_size)
+    ax33.annotate('h', xy=(0.05,0.93), xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left', verticalalignment='top', fontsize=axis_size)
+
+
+#Add ninth subplot................................
+
+    ax34 = plt.subplot2grid((24,3), (16,2), rowspan = 8)
+
+
+    ax34.set_ylabel('Pressure /Pa', fontsize = axis_size)
+    ax34.set_xlabel('Distance / m', fontsize = axis_size)
+
+    ax34.plot(x_distance, meanx_p, color = "blue", ls = "--", label = "Mean")
+    ax34.plot(x_distance, slice_p1, color = "magenta", ls = "--", label = "At canopy height: %(height1)s m" % {"height1" : height1})
+    ax34.plot(x_distance, slice_p2, color = "cyan", ls = "--", label = "At 0.75 * canopy height: %(height2)s m" % {"height2" : height2})
+    ax34.plot(x_distance, slice_p3, color = "green", ls = "--", label = "At 1.25 * canopy height: %(height3)s m" % {"height3" : height3})
+
+    ax34.set_ylim(np.min(slice_p3)*1.25, np.max(slice_p3)*1.75)
+
+    ax34.set_xlim(np.min(x_distance),np.max(x_distance))
+
+    plt.legend(loc = "upper right")
+
+    ax34.annotate('i', xy=(0.05,0.93),  xycoords='axes fraction', backgroundcolor='none', horizontalalignment='left',  verticalalignment='top',  fontsize=axis_size)
+
 
 
     
@@ -588,7 +709,7 @@ def plot_data(u_data, w_data, p_data, Nlevels, Z_levels):
 
 #Add a figure title
 
-    figure.suptitle("2-d with canopy \n wake depth = 5", fontsize = 14)
+    figure.suptitle("2-d with canopy: HILL = 0.1, WIDTHX = 0.1 & WIDTHY = 0.1 for both 1d & 2d parameters", fontsize = 14)
 
     
 #-------------------------------------------------------------------------------------------------------------------    
@@ -609,7 +730,7 @@ if __name__ == "__main__":
    
     out_file = openBlasiusfile(fname)
     
-#    print out_file[:,0]  #print all the rows for the first column
+    #print out_file[:,0]  #print all the rows for the first column
     
     u_data = readBlasiusdata(out_file, u)[1:-1,1,:]
     
@@ -623,7 +744,7 @@ if __name__ == "__main__":
 
     plot_data(u_data, w_data, p_data, Nlevels, Z_levels)
     
-   # plt.savefig('/home/s1359318/rls_datastore/PhD/BLASIUS/python/test/canopy/2dCNPY_wake5.png')
+    #plt.savefig('/home/s1359318/rls_datastore/PhD/BLASIUS/python/test/canopy/2dCNPY_both0.1.png')
     
     plt.show()
     
